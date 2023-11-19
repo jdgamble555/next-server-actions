@@ -6,10 +6,10 @@ export default function TaskForm() {
 
     const formRef = useRef(null);
 
-    const { todosAction, todosError, todos } = useTodos(formRef);
+    const { addTodoAction, todosError, todos } = useTodos(formRef);
 
     return (
-        <form action={todosAction} ref={formRef} className="m-10 flex flex-col">
+        <form action={addTodoAction} ref={formRef} className="m-10 flex flex-col">
             <h1 className="border-b border-b-black mb-3 text-xl">My Todo List</h1>
             <input type="text" className="border border-sky-500 p-2" name="name" placeholder="Name" />
             {todosError &&

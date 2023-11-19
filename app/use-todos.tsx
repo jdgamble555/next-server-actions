@@ -1,43 +1,44 @@
 import { MutableRefObject, useOptimistic, useState } from "react";
-import { Todo, addTodo } from "./add-todo";
+import { addTodo } from "./todo-actions";
+import { type Todo, generateID } from "./todo-utils";
 
 export function useTodos(formRef: MutableRefObject<HTMLFormElement | null>) {
 
     const [todos, setTodos] = useState<Todo[]>([{
-        name: 'me',
+        name: 'first task',
         completed: true,
-        id: '_original2023521235'
+        id: 'original-0000000000'
     }]);
 
     const [todosError, setTodosError] = useState('');
 
-    const [optimisticTodos, addOptimisticTodo] = useOptimistic(
-        todos,
-        (state: Todo[], newTodo: Todo) => [
-            ...state,
-            { ...newTodo, id: '_client' + Math.random().toString().substring(2, 12) }
-        ]
-    );
+    const [optimisticTodos, setOptimisticTodos] = useOptimistic(todos);
 
-    const todosAction = async (formData: FormData) => {
-        setTodosError('');
+    const addTodoAction = async (formData: FormData) => {
+
+        // validation occurs on server
         const todo = Object.fromEntries(formData) as unknown as Todo;
         formRef?.current?.reset();
         setTodosError('');
-        addOptimisticTodo(todo);
+
+        // add optimistically
+        const newTodo = {
+            ...todo,
+            id: 'client-' + generateID()
+        };
+        setOptimisticTodos(optimisticTodos => [...optimisticTodos, newTodo]);
+
+        // get result from server
         const result = await addTodo(todos, formData);
-        if (result.message) {
-            setTodosError(result.message);
+        if (!result.success) {
+            setTodosError(result.error);
             return;
         }
-        const { id, completed, name } = result;
-        if (id) {
-            setTodos(_todos => [..._todos, { id, completed, name }]);
-        }
+        setTodos(_todos => [..._todos, result.todo]);
     };
 
     return {
-        todosAction,
+        addTodoAction,
         todosError,
         todos: optimisticTodos
     };

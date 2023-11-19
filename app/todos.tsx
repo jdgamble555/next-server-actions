@@ -1,4 +1,4 @@
-import { type Todo } from "./add-todo"
+import type { Todo } from "./todo-utils";
 
 export function Todos({ todos }: { todos: Todo[] }) {
     return (
@@ -14,7 +14,7 @@ export function Todos({ todos }: { todos: Todo[] }) {
                 {todos.map((todo) => (
                     <tr key={todo.id}>
                         <td>{todo.id}</td>
-                        <td>{todo.name}</td>
+                        <td className={todo.completed ? 'line-through' : ''}>{todo.name}</td>
                         <td>{todo.completed ? 'true' : 'false'}</td>
                     </tr>
                 ))}
